@@ -1,0 +1,37 @@
+
+Traefik creates, for each container, a corresponding service and router.
+
+
+The Service automatically gets a server per instance of the container,
+and the router automatically gets a rule defined by defaultRule (if no rule for it was defined in labels).
+
+i.e
+    - traefik.http.router.cont-name.rule= [RULE]
+
+In general when configuring a Traefik provider, a service assigned to one (or several) router(s) must be defined as well for the routing to be functional.
+
+There are, however, exceptions when using label-based configurations:
+
+    If a label defines a router (e.g. through a router Rule) and a label defines a service (e.g. implicitly through a loadbalancer
+     server port value), but the router does not specify any service, then that service is automatically assigned to the router.
+    If a label defines a router (e.g. through a router Rule) but no service is defined, then a service is automatically created and assigned to the router.
+
+
+To update the configuration of the Router automatically attached to the container, add labels starting with
+
+ traefik.http.routers.<name-of-your-choice>.
+  and followed by the option you want to change.
+
+  For example, to change the rule, you could add the label traefik.http.routers.my-container.rule=Host(`mydomain.com`).
+
+
+For Traefik to work on swarm mode for our use case
+
+Create custom network using the overlay driver
+
+Create traefik service configuration
+
+Create compose network to make use of already created network as driver
+
+all service should connect to that network to be made available
+
