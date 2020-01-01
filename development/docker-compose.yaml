@@ -1,22 +1,41 @@
 version: "3"
 services:
-  db:
+
+  db_account:
     image: postgres
     restart: always
-    ports:
-      - 5050:5432
     env_file:
-      - ./.env.prod.db
+      - .env.dev.account-db
     volumes:
       - postgres_data_develop:/var/lib/postgresql/data
 
-  miousify_account:
-    image: miousify_account_service:v0.0.1
+  db_tower:
+    image: postgres
+    restart: always
+    env_file:
+      - .env.dev.tower-db
+    volumes:
+      - postgres_data_develop2:/var/lib/postgresql/data
 
+  miousify_account:
+    image: miousify/account_service:v0.0.1
+    depends_on:
+      - db_account
+    env_file:
+      - ./.env.dev.account-db
+    ports:
+      - 4000:80
+      -
+  miousify_tower:
+    image: miousify/tower_service:v0.0.1
+    depends_on:
+      - db_tower
     env_file:
       - ./.env.prod.account
     ports:
-      - 4000:80
+      - 3000:80
 
 volumes:
-  postgres_data_develop:
+  postgres_data_develop: {}
+  postgres_data_develop2: {}
+
