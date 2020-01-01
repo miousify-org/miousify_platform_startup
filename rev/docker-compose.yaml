@@ -21,42 +21,23 @@ services:
       restart_policy:
         condition: on-failure
 
-#  miousify_tower:
-#    image: alpine
-#    command: sh
-#    depends_on:
-#      - traefik
-#    deploy:
-#      mode: replicated
-#      replicas: 2
-#      labels:
-#        - "traefik.enable=true"
-#        - "traefik.http.routers.whoami.rule=Host(`tower.node-1`)"
-#        - "traefik.http.routers.whoami.service=whoami"
-#        - "traefik.http.services.whoami.loadbalancer.server.port=80"
-#        - "traefik.http.services.whoami.loadbalancer.server.scheme=http,https"
-#        - "traefik.docker.network=traefik-public"
-#        - "traefik.docker.lbswarm=false"
-
-  miousify_account_service:
-    image:  miousify_account_service:v0.0.1
+  miousify_account:
+    image: miousify_account_service:v0.0.1
     networks:
       - traefik-public
+    env_file:
+      - ./.env.prod.account
     ports:
-      - 5000:80
+      - 4000:80
     deploy:
-      mode: replicated
-      replicas: 1
       labels:
         - "traefik.enable=true"
-        - "traefik.http.routers.miousify_account.rule=Host(`docker.node-1`)"
-        - "traefik.http.routers.miousify_account.entrypoints=traefik"
+        - "traefik.http.routers.miousify_account.rule=Host(`localhost`)"
+        - "traefik.http.routers.miousify_account.entrypoints=web"
         - "traefik.http.routers.miousify_account.service=miousify_account"
         - "traefik.http.services.miousify_account.loadbalancer.server.port=80"
         - "traefik.http.services.miousify_account.loadbalancer.server.scheme=http"
-        - "traefik.docker.network=traefik-public"
-        - "traefik.docker.lbswarm=true"
-
+        - "traefik.docker.lbswarm=false"
 
   whoami:
     image: containous/whoami:latest
@@ -67,29 +48,18 @@ services:
       replicas: 1
       labels:
         - "traefik.enable=true"
-        - "traefik.http.routers.whoami-host.rule=Host(`app.node-1`)"
-        - "traefik.http.routers.whoami-host.entrypoints=web"
-        - "traefik.http.routers.whoami-host.service=whoami"
+        - "traefik.http.routers.whoami.rule=Path(`/whoami`)"
+        - "traefik.http.routers.whoami.entrypoints=web"
+        - "traefik.http.routers.whoami.service=whoami"
         - "traefik.http.services.whoami.loadbalancer.server.port=80"
         - "traefik.http.services.whoami.loadbalancer.server.scheme=http"
         - "traefik.docker.lbswarm=false"
-  whoam2:
-    image: containous/whoami:latest
-    networks:
-      - traefik-public
-    deploy:
-      mode: replicated
-      replicas: 1
-      labels:
-        - "traefik.enable=true"
-        - "traefik.http.routers.whoami2.rule=Path(`/whoam2`)"
-        - "traefik.http.routers.whoami2.entrypoints=web"
-        - "traefik.http.routers.whoami2.service=whoami"
-        - "traefik.http.services.whoami2.loadbalancer.server.port=80"
-        - "traefik.http.services.whoami2.loadbalancer.server.scheme=http"
-        - "traefik.docker.lbswarm=false"
+
 
 networks:
   traefik-public:
     driver: traefik-pubic
     external: true
+
+volumes:
+  postgres_data:
