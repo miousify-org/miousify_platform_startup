@@ -1,6 +1,15 @@
 version: "3"
 services:
 
+  mongo:
+    image: mongo
+    restart: always
+    ports:
+      - 27017:27017
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: 15June199815June1998__
+
   db_account:
     image: postgres
     restart: always
@@ -8,6 +17,12 @@ services:
       - .env.dev.account-db
     volumes:
       - postgres_data_develop:/var/lib/postgresql/data
+
+  miousify_store_resource:
+    image: miousify_store_resource:v0.0.1
+    depends_on:
+      - mongo
+
 
   db_tower:
     image: postgres
@@ -24,8 +39,9 @@ services:
     env_file:
       - ./.env.dev.account-db
     ports:
-      - 4000:80
-      -
+      - 5050:80
+
+
   miousify_tower:
     image: miousify/tower_service:v0.0.1
     depends_on:
@@ -33,7 +49,7 @@ services:
     env_file:
       - ./.env.prod.account
     ports:
-      - 3000:80
+      - 3030:80
 
 volumes:
   postgres_data_develop: {}
