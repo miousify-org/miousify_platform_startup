@@ -20,19 +20,30 @@ services:
         delay: 0s
       restart_policy:
         condition: on-failure
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.traefik-dashboard.rule=Host(`xyz-dashboard.miousify.com`)"
+        - "traefik.http.routers.traefik-dashboard.entrypoints=web"
+        - "traefik.http.routers.traefik-dashboard.service=traefik-dashboard"
+        - "traefik.http.services.traefik-dashboard.loadbalancer.server.port=8080"
+        - "traefik.http.services.traefik-dashboard.loadbalancer.server.scheme=http"
+        - "traefik.docker.lbswarm=false"
 
   miousify_account:
-    image: miousify_account_service:v0.0.1
+    image: miousify/account_service:latest
     networks:
       - traefik-public
     env_file:
       - ./.env.prod.account
-    ports:
-      - 4000:80
     deploy:
+      update_config:
+        parallelism: 1
+        delay: 0s
+      restart_policy:
+        condition: on-failure
       labels:
         - "traefik.enable=true"
-        - "traefik.http.routers.miousify_account.rule=Host(`localhost`)"
+        - "traefik.http.routers.miousify_account.rule=Host(`xyz-accounts.miousify.com`)"
         - "traefik.http.routers.miousify_account.entrypoints=web"
         - "traefik.http.routers.miousify_account.service=miousify_account"
         - "traefik.http.services.miousify_account.loadbalancer.server.port=80"
@@ -48,18 +59,14 @@ services:
       replicas: 1
       labels:
         - "traefik.enable=true"
-        - "traefik.http.routers.whoami.rule=Path(`/whoami`)"
+        - "traefik.http.routers.whoami.rule=Path(`test.miousify.com`)"
         - "traefik.http.routers.whoami.entrypoints=web"
         - "traefik.http.routers.whoami.service=whoami"
         - "traefik.http.services.whoami.loadbalancer.server.port=80"
         - "traefik.http.services.whoami.loadbalancer.server.scheme=http"
         - "traefik.docker.lbswarm=false"
 
-
 networks:
   traefik-public:
     driver: traefik-pubic
     external: true
-
-volumes:
-  postgres_data:
