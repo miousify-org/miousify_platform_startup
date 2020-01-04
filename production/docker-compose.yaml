@@ -34,7 +34,7 @@ services:
     networks:
       - traefik-public
     env_file:
-      - ./.env.prod.account
+      - .env.prod.account
     deploy:
       update_config:
         parallelism: 1
